@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Project outputs (generated during AIDLC execution)
+aidlc-docs/
+
+# Node (if used)
+node_modules/
