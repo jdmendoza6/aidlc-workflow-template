@@ -53,10 +53,12 @@ OPERATIONS PHASE
 
 **Execution**:
 1. Load all steps from `operations/environment-strategy.md`
-2. Ask environment strategy questions (6 decision-point questions)
-3. Document answers in `aidlc-docs/operations/environment-strategy.md`
-4. Generate deployment plan based on answers
-5. **Wait for Explicit Approval** — DO NOT PROCEED until user confirms
+2. If auto-answering: consider environmental context (EC2, IAM role, existing IaC) before defaulting to minimal
+3. Ask environment strategy questions (6 decision-point questions)
+4. Document answers in `aidlc-docs/operations/environment-strategy.md`
+5. Generate deployment plan based on answers
+6. **MANDATORY**: If ALL cloud stages (4-7) would be skipped, present degenerate result safeguard confirmation
+7. **Wait for Explicit Approval** — DO NOT PROCEED until user confirms
 
 ### Stage 2: Local Scripts & Validation (ALWAYS EXECUTE)
 

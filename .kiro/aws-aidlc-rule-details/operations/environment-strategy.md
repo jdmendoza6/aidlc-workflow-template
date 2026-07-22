@@ -196,3 +196,58 @@ Choose:
 4. **Each deployment target gets its own path** — independent progression
 5. **Security is non-negotiable** — no 0.0.0.0/0, test data isolation baked in
 6. **The plan drives ALL subsequent stages** — reference it throughout
+
+---
+
+## MANDATORY: Context-Aware Auto-Answering
+
+**CRITICAL**: When the AI answers environment strategy questions on the user's behalf (e.g., user says "use best judgement"), the AI MUST consider environmental context before defaulting to the simplest/minimal option.
+
+**Context signals that imply cloud deployment**:
+| Signal | Implication |
+|--------|-------------|
+| Running on EC2 instance | Cloud deployment is expected (user has AWS access) |
+| IAM admin role attached | Full deployment capability exists — use it |
+| AWS CLI configured | Cloud services are available |
+| CDK/Terraform/IaC exists in workspace | Infrastructure deployment is intended |
+| Dockerfile exists | Container deployment likely |
+| CI/CD artifacts exist (buildspec, appspec) | Pipeline/deployment is intended |
+| Multi-branch git repo | Multi-environment is likely |
+
+**Rules for auto-answering**:
+1. If running on a cloud instance (EC2/Cloud9) with IAM role → default to cloud deployment, NOT local-only
+2. If the project has IaC artifacts → default to infrastructure deployment
+3. If the project has CI/CD artifacts → default to pipeline automation
+4. **Never default to "local only, no cloud" when cloud capability is clearly available**
+5. When in doubt, choose the MORE complete option — the progression framework handles validation
+
+**Example**: On EC2 with admin role + static HTML game:
+- WRONG: "No cloud deployment needed, just open the file locally"
+- RIGHT: "Deploy to S3 + CloudFront (static hosting) since we're on AWS with full capability"
+
+---
+
+## MANDATORY: Degenerate Result Safeguard
+
+**CRITICAL**: If the environment strategy answers (whether user-provided or auto-answered) result in ALL cloud stages being skipped (Stage 4, 5, 6, 7 all SKIP), the AI MUST present an explicit confirmation before proceeding — even when auto-answering.
+
+```markdown
+## ⚠️ Operations Phase Scope Check
+
+Based on the environment strategy answers, the Operations phase will:
+- ✅ Execute: Stage 2 (Local Scripts), Stage 3 (Local Simulation)
+- ⏭️ SKIP: Stage 4 (Cloud Deployment), Stage 5 (Pipeline), Stage 6 (Multi-Env), Stage 7 (Readiness)
+
+This means NO cloud deployment will occur. The Operations phase will validate
+local execution only.
+
+Is this intentional?
+A) Yes — local-only is correct for this project
+B) No — I want cloud deployment (let me re-answer the strategy questions)
+
+[Answer]:
+```
+
+**This confirmation is MANDATORY** — it prevents the Operations phase from being trivialized into "just run scripts locally" without the user consciously choosing that outcome.
+
+**Exception**: If the user explicitly stated "no cloud deployment" or "local only" in their original request, this confirmation can be skipped (the intent is already clear).
