@@ -223,3 +223,22 @@ Choose:
 5. **Fix HERE, not on cloud** — any issue caught here saves 10x debugging time on cloud
 6. **Document everything** — exact commands, exact outputs, exact test counts
 7. **DO NOT use Docker to simulate bare metal** — it will miss systemd issues, package issues, user context issues
+
+---
+
+## MANDATORY: Stage 3 Must Be Meaningfully Different From Stage 2
+
+**CRITICAL**: Stage 3 (Staging Simulation) MUST test something that Stage 2 (Local Scripts) did NOT test. If Stage 3 is identical to Stage 2 — same server, same commands, same environment — it provides zero additional validation and is a waste.
+
+**The Differentiation Rule**:
+| Deployment Target | Stage 2 Tests | Stage 3 MUST Additionally Test |
+|-------------------|---------------|-------------------------------|
+| S3 + CloudFront (static) | Local file serves via `python -m http.server` | HTTPS behavior, cache headers, CORS, MIME types, CDN simulation (e.g., nginx with caching proxy) |
+| ECS (container) | Docker image builds | Container runs with production-like env vars, internal health check passes, E2E against container port |
+| EC2 on-prem | Script syntax valid | Full deploy lifecycle on matching machine (systemd, users, permissions, nginx) |
+| RDS (database) | SQLite/in-memory tests pass | Real DB engine container, migrations run, seed data loads, E2E against real engine |
+| Lambda/Serverless | Code compiles | Local invoke with SAM/serverless-offline, actual handler execution |
+
+**If Stage 3 cannot be meaningfully differentiated from Stage 2** (e.g., truly static file with no cloud target), then the deployment plan from Stage 1 is likely wrong — revisit Stage 1 and define what cloud target actually makes the simulation meaningful.
+
+**Anti-pattern detected in testing**: Running `python3 -m http.server` for Stage 3 when Stage 2 already tested `python3 -m http.server` is NOT a valid simulation. Stage 3 must simulate the ACTUAL deployment target's behavior (S3 serving behavior, CloudFront caching, HTTPS termination, etc.).

@@ -169,6 +169,30 @@ OPERATIONS PHASE
 
 ---
 
+## MANDATORY: Cascading Skip Prevention
+
+**Problem**: A single upstream decision (e.g., "no cloud deployment" in Stage 1) can cause ALL subsequent cloud stages (4-7) to be skipped, reducing the entire Operations phase to trivial local validation. This defeats the purpose of the phase.
+
+**Rules to prevent cascading skips**:
+
+1. **Minimum Operations Bar**: The Operations phase MUST result in at least ONE deployment beyond localhost, unless the user EXPLICITLY confirms local-only deployment. "Use best judgement" is NOT explicit confirmation.
+
+2. **Stage Skip Audit**: When any stage is marked SKIP, the AI must log:
+   - WHICH stage is being skipped
+   - WHY it's being skipped (trace back to which answer/decision caused it)
+   - Whether the skip was EXPLICITLY requested by the user or INFERRED by the AI
+   - If inferred: present for confirmation
+
+3. **Auto-Answer Scope Limit**: When the user says "use best judgement" or similar, the AI may auto-answer questions about HOW to deploy (branch strategy, DB engine, automation level) but must NOT auto-answer WHETHER to deploy to cloud. Cloud vs. local-only is a scope decision that requires explicit user input OR strong environmental evidence (see environment-strategy.md context-awareness rules).
+
+4. **Recovery Path**: If the Operations phase ends with only Stage 2-3 completed and the user later asks "why wasn't this deployed?", the AI must:
+   - Acknowledge the gap
+   - Identify which Stage 1 answer caused the cascade
+   - Offer to re-run from Stage 1 with updated answers
+   - Follow Rule 2 (never skip stages) when re-running
+
+---
+
 ## Parallel Deployment Paths
 
 When multiple targets exist, each has its OWN independent progression:
