@@ -54,9 +54,16 @@ AI-DLC is a structured yet flexible software development process that adapts to 
                               v
         +---------------------------------------+
         |     OPERATIONS PHASE                  |
-        |     Placeholder for Future            |
+        |     Progressive Deployment            |
         +---------------------------------------+
-        | * Operations (PLACEHOLDER)            |
+        | * Stage 0: Prerequisites (ALWAYS)     |
+        | * Stage 1: Env Strategy (ALWAYS)      |
+        | * Stage 2: Local Scripts (ALWAYS)     |
+        | * Stage 3: Staging Sim (ALWAYS)       |
+        | * Stage 4: Cloud Deploy (ALWAYS)      |
+        | * Stage 5: CI/CD Pipeline (COND)      |
+        | * Stage 6: Multi-Env (COND)           |
+        | * Stage 7: Ops Readiness (COND)       |
         +---------------------------------------+
                               |
                               v
@@ -77,10 +84,13 @@ AI-DLC is a structured yet flexible software development process that adapts to 
 - **Output**: Working code, tests, build instructions
 - **Your Role**: Review designs, approve implementation plans, validate results
 
-**OPERATIONS PHASE** - *Deployment & Monitoring (Future)*
-- **Purpose**: How to DEPLOY and RUN it
-- **Status**: Placeholder for future deployment and monitoring workflows
-- **Current State**: Build and test activities handled in CONSTRUCTION phase
+**OPERATIONS PHASE** - *Progressive Deployment*
+- **Purpose**: How to DEPLOY and RUN it — progressive validation with hard gates
+- **Activities**: Create scripts, simulate locally on matching targets, deploy to cloud, automate pipelines, multi-environment
+- **Output**: Deployed application with CI/CD, monitoring, and runbooks
+- **Stages**: Prerequisites → Environment Strategy → Local Scripts → Staging Simulation → Cloud Deployment → Pipeline → Multi-Env → Operational Readiness
+- **Key Rules**: No stage skipping, first-try success required, match the target, exhaust automated before manual, no 0.0.0.0/0 ever
+- **Your Role**: Validate strategy decisions, approve deployments, confirm gates pass
 
 ## Key Principles:
 

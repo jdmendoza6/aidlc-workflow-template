@@ -169,6 +169,55 @@ OPERATIONS PHASE
 
 ---
 
+## MANDATORY: Security Constraints (Non-Negotiable, Independent of Extensions)
+
+These rules apply to ALL operations regardless of whether the Security Baseline extension is enabled. They are hard-coded into the Operations phase and cannot be opted out of.
+
+**Rule S1: NEVER open 0.0.0.0/0 on any port**
+```
+The AI MUST NEVER execute any command that adds an inbound security group rule
+with source 0.0.0.0/0 (or ::/0) on ANY port. This includes:
+- aws ec2 authorize-security-group-ingress --cidr 0.0.0.0/0
+- CDK/Terraform/CloudFormation resources with 0.0.0.0/0 ingress
+- Any equivalent across any cloud provider
+
+NO EXCEPTIONS. Not even for "temporary testing." Not even for port 80/443.
+If public access is needed, use a load balancer with proper security controls.
+```
+
+**Rule S2: Restrict all access to deployer IP or VPN CIDR**
+```
+All security group ingress rules MUST specify a restricted source:
+- Deployer's current IP (/32)
+- Corporate VPN CIDR
+- Another security group reference
+NEVER 0.0.0.0/0.
+```
+
+**Rule S3: Test data isolation**
+```
+Tests MUST NEVER touch production data at any stage.
+- Isolated test databases (separate DB name or separate instance)
+- Test teardown cleans up test data
+- No shared state between test runs and production
+```
+
+**Rule S4: No secrets in code or logs**
+```
+- No passwords, API keys, or connection strings in source code
+- No secrets in command-line arguments (visible in process list)
+- Use secrets manager / parameter store / env vars
+- Logs must not contain secret values
+```
+
+**Enforcement**: Before executing ANY `aws` CLI command that modifies security groups, network ACLs, or firewall rules, the AI MUST:
+1. Check that no `0.0.0.0/0` or `::/0` appears in the command
+2. Verify the CIDR is a specific IP or restricted range
+3. If the command would open unrestricted access: REFUSE and explain why
+4. Log the refusal in audit.md
+
+---
+
 ## MANDATORY: Cascading Skip Prevention
 
 **Problem**: A single upstream decision (e.g., "no cloud deployment" in Stage 1) can cause ALL subsequent cloud stages (4-7) to be skipped, reducing the entire Operations phase to trivial local validation. This defeats the purpose of the phase.
