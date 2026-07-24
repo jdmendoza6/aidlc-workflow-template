@@ -49,14 +49,14 @@ OPERATIONS PHASE
 
 ### Stage 1: Environment Strategy (ALWAYS EXECUTE)
 
-**Purpose**: Define deployment targets, environments, branch strategy, DB strategy, automation level.
+**Purpose**: Define deployment targets, environments, branch strategy, DB rollout, config strategy, rollback approach, automation level.
 
 **Execution**:
 1. Load all steps from `operations/environment-strategy.md`
-2. If auto-answering: consider environmental context (EC2, IAM role, existing IaC) before defaulting to minimal
-3. Ask environment strategy questions (6 decision-point questions)
+2. Ask ALL 9 environment strategy questions — none may be skipped or auto-answered silently
+3. If user says "use best judgement": make choices, but STATE them visibly and give user opportunity to override
 4. Document answers in `aidlc-docs/operations/environment-strategy.md`
-5. Generate deployment plan based on answers
+5. Generate deployment plan based on answers (must address DB rollout, config strategy, and rollback)
 6. **MANDATORY**: If ALL cloud stages (4-7) would be skipped, present degenerate result safeguard confirmation
 7. **Wait for Explicit Approval** — DO NOT PROCEED until user confirms
 
@@ -181,8 +181,22 @@ with source 0.0.0.0/0 (or ::/0) on ANY port. This includes:
 - CDK/Terraform/CloudFormation resources with 0.0.0.0/0 ingress
 - Any equivalent across any cloud provider
 
-NO EXCEPTIONS. Not even for "temporary testing." Not even for port 80/443.
-If public access is needed, use a load balancer with proper security controls.
+NO EXCEPTIONS. NO JUSTIFICATIONS ACCEPTED. Not even:
+- "It's just a game / demo / test"
+- "No sensitive data"
+- "It's temporary"
+- "GitHub Actions needs access" (use dynamic IP whitelisting instead)
+- "It's only port 80/443"
+- "It's a public-facing load balancer" (use WAF + restricted origin)
+
+If the AI encounters a scenario where it THINKS 0.0.0.0/0 is needed:
+1. STOP — do NOT execute the command
+2. Present the scenario to the user
+3. Propose a RESTRICTED alternative (specific IP, CIDR range, or dynamic SG management)
+4. Wait for explicit user approval of the alternative
+5. Log in audit.md that 0.0.0.0/0 was considered and rejected
+
+The word "NEVER" means NEVER. There is no condition under which this is acceptable.
 ```
 
 **Rule S2: Restrict all access to deployer IP or VPN CIDR**

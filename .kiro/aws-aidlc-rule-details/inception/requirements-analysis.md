@@ -135,6 +135,16 @@ Present the question file to the user and STOP.
    - Incorporate user's answers to clarifying questions
    - Provide brief summary of key requirements
 
+   **CRITICAL CONSTRAINTS for Requirements Document**:
+   
+   1. **NEVER mark Operations Phase as "Out of Scope"** — The Operations Phase (Stages 0-4) is ALWAYS in scope. Deployment strategy, environment details, and CI/CD specifics are decided LATER during Operations Stage 1 (Environment Strategy), NOT here. Requirements should focus on WHAT the app does, not WHERE/HOW it deploys.
+   
+   2. **NEVER decide deployment topology during Requirements** — Do NOT include sections like "Deployment: Docker Compose with SQL Server" or "CI/CD: GitHub Actions" in the requirements document. Those decisions belong to the Operations phase which has its own questionnaire.
+   
+   3. **Local development database MUST be lightweight** — If specifying a local dev setup in requirements, use SQLite/H2/in-memory. The production DB engine (SQL Server, PostgreSQL) is only for staging+ environments. Do NOT write "Local dev uses Docker with SQL Server."
+   
+   4. **"Out of Scope" section must NOT include** — deployment, CI/CD, monitoring, infrastructure, environment management, or any Operations Phase concern. These are handled by the Operations Phase, not excluded entirely.
+
 ### Step 8: Update State Tracking
 
 Update `aidlc-docs/aidlc-state.md`:

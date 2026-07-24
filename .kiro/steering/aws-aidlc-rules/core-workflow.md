@@ -69,9 +69,10 @@ All subsequent rule detail file references (e.g., `common/process-overview.md`, 
 
 **How to Display Welcome Message**:
 1. Load the welcome message from `common/welcome-message.md` (in the resolved rule details directory)
-2. Display the complete message to the user
-3. This should only be done ONCE at the start of a new workflow
-4. Do NOT load this file in subsequent interactions to save context space
+2. Display the COMPLETE message to the user INCLUDING the ASCII diagram VERBATIM — do NOT summarize, paraphrase, or omit the visual diagram
+3. The ASCII art diagram showing all three phases MUST be displayed in a code block exactly as written in the file
+4. This should only be done ONCE at the start of a new workflow
+5. Do NOT load this file in subsequent interactions to save context space
 
 # Adaptive Software Development Workflow
 
@@ -456,12 +457,12 @@ All subsequent rule detail file references (e.g., `common/process-overview.md`, 
 
 ## Stage 1: Environment Strategy (ALWAYS EXECUTE)
 
-**Purpose**: Define deployment targets, environments, branch strategy, DB strategy, automation level.
+**Purpose**: Define deployment targets, environments, branch strategy, DB rollout, config strategy, rollback approach, automation level.
 
 **Execution**:
 1. **MANDATORY**: Log any user input during this stage in audit.md
 2. Load all steps from `operations/environment-strategy.md`
-3. Ask environment strategy questions (6 questions)
+3. Ask ALL 9 environment strategy questions — none may be skipped or auto-answered silently
 4. Document answers
 5. Generate deployment plan based on answers
 6. **Wait for Explicit Approval** — DO NOT PROCEED until user confirms

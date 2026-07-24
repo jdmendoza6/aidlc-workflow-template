@@ -196,9 +196,12 @@ Choose:
 
 ## Key Rules for This Stage
 
-1. **Pipeline artifacts validated locally first** — buildspec commands must work on local machine
-2. **Same result as manual** — pipeline-deployed app must pass same E2E as Stage 4
-3. **Manual prerequisites documented** — CodeStar Connection, etc. clearly stated
-4. **Trigger test required** — not enough to deploy pipeline; must verify push-to-deploy works
-5. **Approval gates for non-staging** — staging auto-deploys, UAT/Prod require approval
-6. **Automated steps first** — validate artifacts, deploy stack, THEN present manual steps
+1. **Pipeline MUST call the same scripts validated at Stage 2/3/4** — the pipeline is an ORCHESTRATOR, not a reimplementation. It calls `build.sh`, `test.sh`, `deploy-to-ec2.sh`, `test-e2e-remote.sh` — the EXACT same scripts. NO inline commands that duplicate or rewrite what those scripts do.
+2. **NO inline build/deploy logic in pipeline config** — if the pipeline has `npm ci && tar czf ...` inline, it violates the progression framework. Those commands belong in scripts that were validated locally. The pipeline YAML should contain ONLY: checkout, setup credentials, call scripts.
+3. **Same result as manual** — pipeline-deployed app must pass same E2E as Stage 4
+4. **Pipeline artifacts validated locally first** — buildspec commands must work on local machine
+5. **Manual prerequisites documented** — CodeStar Connection, etc. clearly stated
+6. **Trigger test required** — not enough to deploy pipeline; must verify push-to-deploy works
+7. **Approval gates for non-staging** — staging auto-deploys, UAT/Prod require approval
+8. **Automated steps first** — validate artifacts, deploy stack, THEN present manual steps
+9. **Security group management for CI runners** — if runners need SSH access, use DYNAMIC IP whitelisting (get runner IP → add to SG → deploy → revoke). NEVER open 0.0.0.0/0 for runner access.

@@ -275,7 +275,11 @@ flowchart TD
     end
     
     subgraph OPERATIONS["🟡 OPERATIONS PHASE"]
-        OPS["Operations<br/><b>PLACEHOLDER</b>"]
+        OPS0["Stage 0: Prerequisites<br/><b>ALWAYS</b>"]
+        OPS1["Stage 1: Env Strategy<br/><b>ALWAYS</b>"]
+        OPS2["Stage 2: Local Scripts<br/><b>ALWAYS</b>"]
+        OPS3["Stage 3: Staging Sim<br/><b>ALWAYS</b>"]
+        OPS4["Stage 4: Cloud Deploy<br/><b>ALWAYS</b>"]
     end
     
     Start --> WD
@@ -321,8 +325,24 @@ flowchart TD
   - **Rationale**: Build, test, and verification needed
 
 ### 🟡 OPERATIONS PHASE
-- [ ] Operations - PLACEHOLDER
-  - **Rationale**: Future deployment and monitoring workflows
+- [ ] Stage 0: Prerequisites - EXECUTE (ALWAYS)
+  - **Rationale**: Test suite validation, project structure
+- [ ] Stage 1: Environment Strategy - EXECUTE (ALWAYS)
+  - **Rationale**: Deployment targets, environments, branch strategy decisions
+- [ ] Stage 2: Local Scripts - EXECUTE (ALWAYS)
+  - **Rationale**: Build/test/deploy scripts, local validation
+- [ ] Stage 3: Staging Simulation - EXECUTE (ALWAYS)
+  - **Rationale**: Match target environment locally
+- [ ] Stage 4: Cloud Deployment - EXECUTE (ALWAYS)
+  - **Rationale**: Deploy to cloud, E2E validation
+- [ ] Stage 5: CI/CD Pipeline - [EXECUTE/SKIP]
+  - **Rationale**: [Based on Environment Strategy answers]
+- [ ] Stage 6: Multi-Environment - [EXECUTE/SKIP]
+  - **Rationale**: [Based on Environment Strategy answers]
+- [ ] Stage 7: Operational Readiness - [EXECUTE/SKIP]
+  - **Rationale**: [Based on Environment Strategy answers]
+
+**CRITICAL**: Stages 0-4 are ALWAYS executed. They cannot be skipped or marked "out of scope". Stages 5-7 are conditional based on answers given during Operations Stage 1.
 
 ## Package Change Sequence (Brownfield Only)
 [If applicable, list package update sequence with dependencies]
@@ -379,7 +399,14 @@ Update `aidlc-docs/aidlc-state.md`:
 - [ ] Build and Test - EXECUTE
 
 ### 🟡 OPERATIONS PHASE
-- [ ] Operations - PLACEHOLDER
+- [ ] Stage 0: Prerequisites - EXECUTE (ALWAYS)
+- [ ] Stage 1: Environment Strategy - EXECUTE (ALWAYS)
+- [ ] Stage 2: Local Scripts - EXECUTE (ALWAYS)
+- [ ] Stage 3: Staging Simulation - EXECUTE (ALWAYS)
+- [ ] Stage 4: Cloud Deployment - EXECUTE (ALWAYS)
+- [ ] Stage 5: CI/CD Pipeline - [EXECUTE/SKIP]
+- [ ] Stage 6: Multi-Environment - [EXECUTE/SKIP]
+- [ ] Stage 7: Operational Readiness - [EXECUTE/SKIP]
 
 ## Current Status
 - **Lifecycle Phase**: INCEPTION

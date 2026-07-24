@@ -2,6 +2,8 @@
 
 **Purpose**: This file contains the user-facing welcome message that should be displayed ONCE at the start of any AI-DLC workflow.
 
+**CRITICAL DISPLAY INSTRUCTION**: You MUST display the COMPLETE ASCII diagram below VERBATIM — do NOT summarize, paraphrase, or convert it to bullet points. The visual diagram is essential for user orientation. Copy-paste the entire code block exactly as-is into your response.
+
 ---
 
 # 👋 Welcome to AI-DLC (AI-Driven Development Life Cycle)! 👋

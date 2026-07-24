@@ -74,7 +74,40 @@ D) Other (please describe)
 
 [Answer]:
 
-## Question 6: Stage 3 Simulation Scope
+## Question 6: Database Rollout Approach
+How should database changes be applied to each environment?
+
+A) Auto-migrate on deploy (migration runs as part of deployment pipeline)
+B) Manual migration with approval (DBA or lead runs migration separately before deploy)
+C) Blue-green DB (deploy new schema alongside old, switch after validation)
+D) Maintenance window (schedule downtime, apply migration, then deploy)
+E) Other (please describe)
+
+[Answer]:
+
+## Question 7: Environment Variable & Configuration Strategy
+Where should configuration and secrets be stored and how are they managed per environment?
+
+A) Cloud secrets manager (AWS Secrets Manager, Parameter Store, Vault) — different values per env
+B) Environment files (.env) deployed with the application — different file per env
+C) CI/CD pipeline secrets (GitHub Secrets, CodePipeline env vars) — injected at deploy time
+D) Combination: secrets in managed service, non-sensitive config in env files
+E) Other (please describe)
+
+[Answer]:
+
+## Question 8: Rollback Strategy
+How should a failed deployment be rolled back?
+
+A) Automatic rollback on health check failure (pipeline reverts to previous version)
+B) Manual rollback with script (operator runs rollback command)
+C) Blue-green swap (keep previous version running, switch back if new version fails)
+D) Redeploy previous commit (push previous git SHA through pipeline again)
+E) Other (please describe)
+
+[Answer]:
+
+## Question 9: Stage 3 Simulation Scope
 What should Stage 3 (local staging simulation) include?
 
 A) Full architecture locally (DB engine container + app on matching machine + web server)
@@ -88,7 +121,7 @@ C) Other (please describe)
 
 ## Step 3: Wait for Answers
 
-**DO NOT PROCEED** until all 6 questions are answered.
+**DO NOT PROCEED** until all 9 questions are answered.
 
 If answers are ambiguous, ask ONE follow-up question for clarification. Do not ask multiple rounds of questions.
 
@@ -191,11 +224,13 @@ Choose:
 ## Key Rules for This Stage
 
 1. **These are decision points** — the user chooses what they want, not validates what exists
-2. **Ask all 6 questions at once** — don't drip-feed questions
-3. **Generate plan from answers** — don't ask more questions after this stage
-4. **Each deployment target gets its own path** — independent progression
-5. **Security is non-negotiable** — no 0.0.0.0/0, test data isolation baked in
-6. **The plan drives ALL subsequent stages** — reference it throughout
+2. **Ask ALL 9 questions at once** — don't drip-feed questions, don't skip any
+3. **DO NOT auto-answer these questions** — even if the user says "use best judgement", these are strategic decisions that need explicit answers. If the user delegates, make a clear choice, STATE it visibly to the user, and give them opportunity to override before proceeding.
+4. **Generate plan from answers** — don't ask more questions after this stage
+5. **Each deployment target gets its own path** — independent progression
+6. **Security is non-negotiable** — no 0.0.0.0/0, test data isolation baked in
+7. **The plan drives ALL subsequent stages** — reference it throughout
+8. **Questions 6-8 (DB rollout, config strategy, rollback) inform Stage 4-7 implementation** — these answers determine how deploy scripts work, how config is loaded, and how failures are handled
 
 ---
 

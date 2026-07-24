@@ -7,7 +7,7 @@
 **Phase**: One of the three high-level lifecycle phases in AI-DLC
 - 🔵 **INCEPTION PHASE** - Planning & Architecture (WHAT and WHY)
 - 🟢 **CONSTRUCTION PHASE** - Design, Implementation & Test (HOW)
-- 🟡 **OPERATIONS PHASE** - Deployment & Monitoring (future expansion)
+- 🟡 **OPERATIONS PHASE** - Progressive Deployment (DEPLOY and RUN with validation gates)
 
 **Stage**: An individual workflow activity within a phase
 - Examples: Context Assessment stage, Requirements Assessment stage, Code Generation stage
@@ -55,14 +55,21 @@
 **Outputs**: Design artifacts, NFR implementations, code, tests
 
 ### OPERATIONS PHASE
-**Purpose**: Deployment and operational readiness  
+**Purpose**: Progressive deployment with hard validation gates  
 **Focus**: How to DEPLOY and RUN it  
 **Location**: `operations/` directory
 
 **Stages**:
-- Operations (PLACEHOLDER)
+- Stage 0: Prerequisites & Test Development (ALWAYS)
+- Stage 1: Environment Strategy (ALWAYS)
+- Stage 2: Local Scripts & Validation (ALWAYS)
+- Stage 3: Staging Simulation (ALWAYS)
+- Stage 4: Cloud Deployment (ALWAYS)
+- Stage 5: CI/CD Pipeline (CONDITIONAL)
+- Stage 6: Multi-Environment (CONDITIONAL)
+- Stage 7: Operational Readiness (CONDITIONAL)
 
-**Outputs**: Build instructions, deployment guides, monitoring setup, verification procedures
+**Outputs**: Validated scripts, deployment artifacts, pipeline configuration, monitoring setup, runbooks
 
 ---
 

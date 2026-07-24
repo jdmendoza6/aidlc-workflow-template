@@ -2,9 +2,33 @@
 
 ## Purpose
 
-Create or validate all build/test/run/deploy scripts and confirm everything works locally with the simplest possible infrastructure (e.g., SQLite, localhost). This is Framework Stage 1 — the foundation all other stages build upon.
+Create or validate all build/test/run/deploy scripts and confirm everything works locally with the SIMPLEST possible infrastructure. This is Framework Stage 1 — the foundation all other stages build upon.
 
 **Key Principle**: Auto-discover existing scripts first. If build.sh, test.sh, deploy scripts, Dockerfile, etc. already exist, present them for validation ("I found these scripts, are they the ones to use?") — don't ask "do you have build scripts?" when the AI can scan the project directory.
+
+---
+
+## MANDATORY: Local Development Database Rule
+
+```
+Local development (Stage 2) MUST use the LIGHTEST-WEIGHT database option available:
+- .NET projects: SQLite (via EF Core provider swap)
+- Node.js projects: SQLite (better-sqlite3 or similar)
+- Python projects: SQLite
+- Java projects: H2 in-memory
+
+The PRODUCTION database engine (SQL Server, PostgreSQL, MySQL) is ONLY introduced
+at Stage 3 (Staging Simulation). NOT at local dev.
+
+WHY: Local dev should require ZERO external dependencies. No Docker containers,
+no database servers, no services running. Just: clone, build, test, run.
+
+The application MUST support provider switching (e.g., EF Core with SQLite for dev,
+SQL Server for staging/prod) via configuration (connection string or env var).
+
+WRONG: "Local dev uses Docker Compose with SQL Server container"
+RIGHT: "Local dev uses SQLite; Stage 3 introduces SQL Server in container"
+```
 
 ---
 
@@ -164,6 +188,67 @@ bash -n scripts/deploy/before_install.sh
 bash -n scripts/deploy/after_install.sh
 bash -n scripts/deploy/start.sh
 bash -n scripts/deploy/validate.sh
+```
+
+---
+
+## MANDATORY: E2E Test Script Must EXECUTE at Stage 2
+
+```
+The E2E test script (test-e2e-remote.sh or e2e-test.sh) MUST be EXECUTED
+against the running local application at Stage 2. Syntax-only validation
+is NOT SUFFICIENT for E2E test scripts.
+
+WHY: If the E2E script is only syntax-checked but never run, payload mismatches,
+wrong endpoints, incorrect assertions, and client→API integration issues will
+only be discovered at Stage 3 — wasting iteration cycles.
+
+REQUIRED VALIDATION at Stage 2:
+1. Start the app locally (SQLite, localhost)
+2. Run the E2E script against it: bash scripts/test-e2e-remote.sh http://localhost:PORT
+3. ALL tests must PASS (correct payloads, correct endpoints, correct assertions)
+4. If the app has a frontend, E2E must also test the CLIENT→API path:
+   - Client serves HTML
+   - Client can reach API (proxy or direct)
+   - Client receives correct data from API
+
+WRONG: "E2E script syntax valid (bash -n)" → marking Stage 2 as done
+RIGHT: "E2E script executed, 8/8 tests pass against local app" → Stage 2 done
+```
+
+---
+
+## MANDATORY: Docker/Container Pre-Flight Checks (before Stage 3)
+
+```
+Before running `docker compose up` at Stage 3, verify:
+
+1. PORT AVAILABILITY: Check that mapped ports are not in use
+   - `lsof -i :PORT` or `ss -tlnp | grep PORT`
+   - Common conflicts: macOS port 5000 (AirPlay), 80 (nginx), 3000 (other apps)
+
+2. CONTAINER NETWORKING: App must bind to 0.0.0.0 (all interfaces), NOT localhost
+   - Inside a container, localhost = container loopback only
+   - Port mapping requires binding to all interfaces
+   - Check: Dockerfile ENV ASPNETCORE_URLS=http://+:PORT (not http://localhost:PORT)
+   - Check: No app.Urls.Add("http://localhost:...") in code
+
+3. CONFIG PROVIDER SWITCHING: Verify the app uses the correct DB provider per environment
+   - Dev: SQLite provider active (via appsettings.Development.json or env var)
+   - Docker/Staging: SQL Server provider active (via docker-compose env or appsettings.Production.json)
+   - Test: Override config should NOT leak (e.g., UseSqlite=true in base config)
+
+4. CLIENT→API BASE URL: If frontend calls backend API
+   - In Docker: client must call API via Docker network name (e.g., http://api:5000) OR proxy
+   - In browser: client must use relative URLs or same-origin proxy, NOT hardcoded localhost:PORT
+   - nginx/proxy config must route /api/* to the API container
+
+5. DUAL-PROVIDER MIGRATION COMPATIBILITY (EF Core / ORM):
+   - Migrations generated on SQLite use SQLite types (TEXT, INTEGER)
+   - These migrations CANNOT run on SQL Server (expects nvarchar, int, etc.)
+   - Solutions: (a) Use EnsureCreated() for non-dev, (b) Separate migration assemblies, 
+     (c) Generate migrations against SQL Server (not SQLite)
+   - This must be decided at CODE GENERATION time, not discovered at Stage 3
 ```
 
 ---

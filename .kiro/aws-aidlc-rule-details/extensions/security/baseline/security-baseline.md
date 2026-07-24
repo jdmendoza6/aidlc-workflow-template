@@ -129,8 +129,10 @@ Verification items in this document are plain bullet points describing complianc
 - Private subnets MUST NOT have direct internet gateway routes
 - Use private endpoints for cloud service access where available
 
+**NOTE**: The Operations Phase has a STRICTER rule (Rule S1 in `operations/operations-workflow.md`) that prohibits ALL `0.0.0.0/0` including on load balancers. When both this extension AND the Operations phase are active, the Operations Rule S1 takes precedence (stricter rule wins). This extension's allowance for public LBs on 80/443 only applies if Operations Rule S1 is explicitly relaxed by the user for a specific project.
+
 **Verification**:
-- No firewall rule allows inbound `0.0.0.0/0` on any port other than 80/443 on a public load balancer
+- No firewall rule allows inbound `0.0.0.0/0` on any port other than 80/443 on a public load balancer (subject to Operations Rule S1 override)
 - Database and application firewall rules restrict source to specific CIDR blocks or security group references
 - Private subnets route through a NAT gateway (not an internet gateway)
 - Private endpoints are used for high-traffic cloud service calls

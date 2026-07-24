@@ -85,6 +85,46 @@ docker stop sqlserver-test && docker rm sqlserver-test
 
 ---
 
+## Known Pitfalls at Stage 3 (Check BEFORE running simulation)
+
+These issues are commonly discovered at Stage 3. Check for them PROACTIVELY before running `docker compose up` or deploying to simulation:
+
+### 1. Port Conflicts
+- macOS uses port 5000 for AirPlay Receiver — remap to 5050 or disable AirPlay
+- Check ports: `lsof -i :PORT` before starting containers
+- Common conflicts: 80 (nginx/apache), 5000 (AirPlay), 3000 (other node apps), 1433 (local SQL Server)
+
+### 2. Container Binding (0.0.0.0 vs localhost)
+- App inside container MUST bind to `0.0.0.0` (all interfaces), NOT `localhost`
+- `localhost` inside a container = container's own loopback, unreachable from host
+- Fix: Use `ASPNETCORE_URLS=http://+:PORT` in Dockerfile/env, NOT `app.Urls.Add("http://localhost:PORT")`
+
+### 3. ORM Dual-Provider Migration Incompatibility
+- **EF Core migrations generated on SQLite have SQLite types** (TEXT, INTEGER)
+- **These migrations CANNOT execute on SQL Server** (expects nvarchar, int, datetime2)
+- Solutions:
+  - (a) Use `Database.EnsureCreated()` for non-dev environments (skips migrations, creates from model)
+  - (b) Maintain separate migration assemblies per provider
+  - (c) Generate migrations against SQL Server provider (not SQLite)
+- This MUST be addressed at Code Generation time — if discovered here, go back and fix the design
+
+### 4. Config Leaking Between Environments
+- Base `appsettings.json` should have production-safe defaults
+- Dev-only settings (e.g., `UseSqlite: true`) belong in `appsettings.Development.json` ONLY
+- Container env vars override app config — verify ALL required vars are set in docker-compose
+
+### 5. Client→API URL Mismatch in Frontend Apps
+- Blazor WASM / React / Vue apps compiled with a hardcoded API base URL won't work in Docker
+- Fix: Use relative URLs + nginx reverse proxy, OR inject API URL via environment at build time
+- E2E tests must validate the CLIENT→PROXY→API path, not just API-direct
+
+### 6. Seed Data Approach
+- `HasData()` / static seed in migrations may fail on provider switch (type serialization differences)
+- Prefer programmatic seeding: check if table empty → insert seed data in `Program.cs` / startup
+- Programmatic seeding works identically on SQLite AND SQL Server
+
+---
+
 ## Step 2: Validate First-Try Success
 
 **CRITICAL RULE**: Every script must pass on FIRST attempt.

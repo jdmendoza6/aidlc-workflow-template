@@ -6,6 +6,30 @@ This document defines the hard rules that the AI MUST follow during the Operatio
 
 ---
 
+## CRITICAL: Database Progression Rule (applies from Requirements onward)
+
+```
+This rule applies EVEN DURING INCEPTION/CONSTRUCTION when defining requirements
+and generating code. The database strategy MUST follow the progression:
+
+Stage 2 (Local/Dev):    LIGHTWEIGHT DB — SQLite, H2, in-memory
+Stage 3 (Simulation):   REAL DB ENGINE in container — SQL Server, PostgreSQL, MySQL
+Stage 4 (Cloud):        REAL DB ENGINE on managed service — RDS, Cloud SQL
+
+The application MUST be designed with provider switching from the start:
+- EF Core: Configure SQLite provider for dev, SQL Server for prod
+- Node.js: Use SQLite for dev, pg/mssql for prod (switched via env var)
+- Java: H2 for dev, PostgreSQL/MySQL for prod
+
+WRONG (in requirements/design): "Local dev uses Docker Compose with SQL Server"
+RIGHT (in requirements/design): "Local dev uses SQLite; SQL Server for staging+"
+
+If the AI writes requirements or generates code that puts the production DB engine
+in the local dev environment, it is violating this rule.
+```
+
+---
+
 ## The 11 Enforcement Rules
 
 ### Rule 1: NO CLOUD DEPLOYMENT WITHOUT LOCAL VALIDATION
